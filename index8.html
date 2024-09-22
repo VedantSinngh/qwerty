@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stay with me?</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+            z-index: 2;
+        }
+
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 100vw;
+            background: radial-gradient(60% 120% at 50% 50%, hsla(0, 0%, 100%, 0) 0, rgba(252, 205, 238, .5) 100%);
+            z-index: 1;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            font-size: 2rem;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .yes {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .no {
+            background-color: #f44336;
+            color: white;
+            position: absolute;
+            transition: top 0.5s, left 0.5s;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .moving-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            position: fixed;
+            transition: transform 2.5s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 1.5s ease-in-out;
+            opacity: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .love-symbol {
+            font-size: 80px;
+            color: red;
+            position: fixed;
+            opacity: 0;
+            z-index: 1;
+            transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+            pointer-events: none;
+        }
+
+        .hello-kitty {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .hello-kitty img {
+            width: 200px;
+        }
+
+        .love-message {
+            font-size: 24px;
+            color: #FF69B4;
+            font-weight: bold;
+        }
+
+        .thank-you {
+            font-size: 20px;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        #image-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .audio-player {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 2;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="image-container"></div>
+
+    <div class="container">
+        <div>
+            <h1>Will you stay with me?</h1>
+            <div class="hello-kitty">
+                <img src="./download.jpeg" alt="Hello Kitty">
+                <div class="love-message">Please stay!</div>
+            </div>
+            <div class="button-container">
+                <button class="yes" id="yesBtn">Yes</button>
+                <button class="no" id="noBtn">No</button>
+            </div>
+            <div class="hidden" id="yesSection">
+                <div class="hello-kitty">
+                    <div class="love-message">I love you!</div>
+                    <div class="thank-you">Thank you!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="background"></div>
+
+    <!-- Music Player -->
+    <div class="audio-player">
+        <audio id="song" controls>
+            <source src="./Lana-Del-Rey-Summertime-Sadness-(RawPraise.ng).mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+
+    <script>
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const yesSection = document.getElementById('yesSection');
+        const imageContainer = document.getElementById('image-container');
+        const song = document.getElementById('song');
+        const imageUrls = [
+            './PIC1.jpg',
+            './PIC2.jpg',
+            './PIC3.jpg',
+            './PIC4.jpg',
+            './PIC5.jpg'
+        ];
+        let isMoving = false;
+
+        // Move the "No" button randomly and smoothly
+        noBtn.addEventListener('mouseenter', () => {
+            const x = Math.floor(Math.random() * (window.innerWidth - noBtn.offsetWidth));
+            const y = Math.floor(Math.random() * (window.innerHeight - noBtn.offsetHeight));
+            noBtn.style.left = `${x}px`;
+            noBtn.style.top = `${y}px`;
+        });
+
+        // When "Yes" is clicked, display love message and start showing images
+        yesBtn.addEventListener('click', () => {
+            if (!isMoving) {
+                yesSection.classList.remove('hidden');
+                noBtn.style.display = 'none'; // Hide "No" button when "Yes" is clicked
+                startTransition();
+                isMoving = true;
+            }
+        });
+
+        function createImage(url) {
+            const img = document.createElement('img');
+            img.src = url;
+            img.className = 'moving-image';
+            imageContainer.appendChild(img);
+            return img;
+        }
+
+        function createLoveSymbol() {
+            const heart = document.createElement('div');
+            heart.className = 'love-symbol';
+            heart.innerHTML = '❤️'; // Love heart symbol
+            imageContainer.appendChild(heart);
+            return heart;
+        }
+
+        function showLoveSymbol(heart, x, y) {
+            heart.style.left = `${x}px`;
+            heart.style.top = `${y}px`;
+            heart.style.opacity = 1;
+            heart.style.transform = 'scale(1.5)';
+            setTimeout(() => {
+                heart.style.opacity = 0;
+                heart.style.transform = 'scale(0.5)';
+            }, 1000); // Heart will fade out after 1 second
+        }
+
+        function showImage(img, x, y) {
+            img.style.left = `${x}px`;
+            img.style.top = `${y}px`;
+            img.style.opacity = 1;
+            setTimeout(() => {
+                img.style.opacity = 0;
+            }, 2000); // Image will fade out after 2 seconds
+        }
+
+        function startTransition() {
+            const totalImages = imageUrls.length; // Number of images to transition
+            let currentIndex = 0;
+
+            const heart = createLoveSymbol();
+            const img = createImage(imageUrls[currentIndex]);
+
+            function transitionImages() {
+                const x = Math.random() * (window.innerWidth - img.offsetWidth);
+                const y = Math.random() * (window.innerHeight - img.offsetHeight);
+                
+                showImage(img, x, y); // Show current image
+                showLoveSymbol(heart, x + 40, y - 40); // Show love symbol near the image
+                
+                currentIndex = (currentIndex + 1) % totalImages; // Loop through the images
+                img.src = imageUrls[currentIndex]; // Set next image source
+
+                setTimeout(transitionImages, 2500); // Show next image after 2.5 seconds
+            }
+
+            transitionImages(); // Start the infinite loop
+        }
+    </script>
+</body>
+
+</html>
